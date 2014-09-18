@@ -2,12 +2,12 @@ package formdata
 
 import (
 	"fmt"
+	"github.com/gocarina/structs"
 	"mime/multipart"
 	"net/http"
 	"reflect"
 	"strconv"
 	"strings"
-	"github.com/gocarina/structs"
 	"time"
 )
 
