@@ -154,6 +154,9 @@ func unmarshalText(field *structs.Field, textValue string) (err error) {
 }
 
 func unmarshalFile(field *structs.Field, fileValues ...*multipart.FileHeader) (err error) {
+	if len(fileValues) == 0 {
+		return fmt.Errorf("field '%s' empty", field.Name())
+	}
 	fieldValue := field.Value()
 	switch fieldValue.(type) {
 	case *multipart.FileHeader:
