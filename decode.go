@@ -1,6 +1,7 @@
 package formdata
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gocarina/structs"
 	"mime/multipart"
@@ -140,14 +141,44 @@ func unmarshalText(field *structs.Field, textValue string) (err error) {
 		if err := field.Set(valueBool); err != nil {
 			return err
 		}
-	case reflect.Struct:
+	case reflect.Map:
+		var m map[string]interface{}
+		if err := json.Unmarshal([]byte(textValue), &m); err != nil {
+			return err
+		}
+		mapReflect := reflect.MakeMap(fieldType)
+		for key, value := range m {
+			mapReflect.SetMapIndex(reflect.ValueOf(key), reflect.ValueOf(value))
+		}
+		if err := field.Set(mapReflect.Interface()); err != nil {
+			return err
+		}
+	case reflect.Interface:
+		var val interface{}
+		if err := json.Unmarshal([]byte(textValue), &val); err != nil {
+			return err
+		}
+		if err := field.Set(val); err != nil {
+			return err
+		}
+	case reflect.Struct, reflect.Ptr:
 		switch field.Value().(type) {
 		case time.Time:
 			date, err := time.Parse(time.RFC3339, textValue)
 			if err != nil {
 				return err
 			}
-			field.Set(date)
+			if err := field.Set(date); err != nil {
+				return err
+			}
+		case *time.Time:
+			date, err := time.Parse(time.RFC3339, textValue)
+			if err != nil {
+				return err
+			}
+			if err := field.Set(&date); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -155,7 +186,7 @@ func unmarshalText(field *structs.Field, textValue string) (err error) {
 
 func unmarshalFile(field *structs.Field, fileValues ...*multipart.FileHeader) (err error) {
 	if len(fileValues) == 0 {
-		return fmt.Errorf("field '%s' empty", field.Name())
+		return nil
 	}
 	fieldValue := field.Value()
 	switch fieldValue.(type) {
