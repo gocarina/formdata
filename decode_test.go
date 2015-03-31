@@ -18,6 +18,7 @@ type Object struct {
 	File   *multipart.FileHeader `formdata:"image"`
 	Date   time.Time             `formdata:"date"`
 	Test   *TestFormData         `formdata:"test"`
+	M      map[string]string     `formdata:"m"`
 }
 
 type TestFormData struct {
@@ -43,6 +44,11 @@ func TestFormdata(t *testing.T) {
 		t.Error(err)
 	}
 	float.Write([]byte("42.42"))
+	m, err := w.CreateFormField("m")
+	if err != nil {
+		t.Error(err)
+	}
+	m.Write([]byte("{\"fr\":\"asdsad\"}"))
 	ignore, err := w.CreateFormField("ignore")
 	if err != nil {
 		t.Error(err)
@@ -84,4 +90,5 @@ func TestFormdata(t *testing.T) {
 	if err := Unmarshal(r, test); err != nil {
 		t.Error(err)
 	}
+	t.Logf("%#v\n", test)
 }
