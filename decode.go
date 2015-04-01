@@ -141,6 +141,14 @@ func unmarshalText(field *structs.Field, textValue string) (err error) {
 		if err := field.Set(valueBool); err != nil {
 			return err
 		}
+	case reflect.Slice:
+		var slice []string
+		if err := json.Unmarshal([]byte(textValue), &slice); err !=nil {
+			return err
+		}
+		if err := field.Set(slice); err != nil {
+			return err
+		}
 	case reflect.Map:
 		var m map[string]interface{}
 		if err := json.Unmarshal([]byte(textValue), &m); err != nil {

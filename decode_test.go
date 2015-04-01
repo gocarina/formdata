@@ -19,6 +19,7 @@ type Object struct {
 	Date   time.Time             `formdata:"date"`
 	Test   *TestFormData         `formdata:"test"`
 	M      map[string]string     `formdata:"m"`
+	Array  []string              `formdata:"array"`
 }
 
 type TestFormData struct {
@@ -81,6 +82,11 @@ func TestFormdata(t *testing.T) {
 		t.Error(err)
 	}
 	te.Write([]byte("whatever"))
+	array, err := w.CreateFormField("array")
+	if err != nil {
+		t.Error(err)
+	}
+	array.Write([]byte(`["caca", "popo"]`))
 	w.Close()
 	r, err := http.NewRequest("POST", "test.com", buf)
 	if err != nil {
