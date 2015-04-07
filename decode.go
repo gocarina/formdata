@@ -172,19 +172,6 @@ func unmarshalText(field *structs.Field, textValue string) (err error) {
 		if err := field.Set(val); err != nil {
 			return err
 		}
-	case reflect.Bool:
-		b := false
-		switch textValue {
-		case "false":
-			b = false
-		case "true":
-			b = true
-		default:
-			return fmt.Errorf("wrong value for bool")
-		}
-		if err := field.Set(b); err != nil {
-			return err
-		}
 	case reflect.Struct, reflect.Ptr:
 		switch field.Value().(type) {
 		case time.Time:
