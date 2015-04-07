@@ -22,6 +22,9 @@ var (
 )
 
 var (
+	// ErrWrongValue happens when there is a wrong value for the type.
+	ErrWrongValue = "wrong value"
+
 	// TagName is the tag used to register custom names for field.
 	TagName = "formdata"
 )
@@ -143,7 +146,7 @@ func unmarshalText(field *structs.Field, textValue string) (err error) {
 		}
 	case reflect.Slice:
 		var slice []string
-		if err := json.Unmarshal([]byte(textValue), &slice); err !=nil {
+		if err := json.Unmarshal([]byte(textValue), &slice); err != nil {
 			return err
 		}
 		if err := field.Set(slice); err != nil {
@@ -167,6 +170,19 @@ func unmarshalText(field *structs.Field, textValue string) (err error) {
 			return err
 		}
 		if err := field.Set(val); err != nil {
+			return err
+		}
+	case reflect.Bool:
+		b := false
+		switch textValue {
+		case "false":
+			b = false
+		case "true":
+			b = true
+		default:
+			return fmt.Errorf("wrong value for bool")
+		}
+		if err := field.Set(b); err != nil {
 			return err
 		}
 	case reflect.Struct, reflect.Ptr:
